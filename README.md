@@ -121,7 +121,7 @@ Contributions are welcome! Please fork the repository and open a pull request wi
 
 ## 📄 License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ## 📫 Contact
 
@@ -134,5 +134,4 @@ For questions or suggestions, feel free to open an issue or reach out:
 
 ---
 
-Let me know if you'd like to include deployment instructions (Docker, CI/CD, Vercel, etc.), a diagram of the architecture, or badges (build status, license, etc.)!
-```
+
