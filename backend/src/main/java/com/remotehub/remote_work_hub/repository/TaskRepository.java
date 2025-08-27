@@ -4,7 +4,6 @@ import com.remotehub.remote_work_hub.entity.Task;
 import com.remotehub.remote_work_hub.entity.TaskStatus;
 import com.remotehub.remote_work_hub.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
@@ -22,9 +21,15 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     
     List<Task> findByDeadlineBefore(LocalDateTime deadline);
     
-    @Query("SELECT t FROM Task t WHERE t.team.id = :teamId AND t.completed = false")
-    List<Task> findActiveTasksByTeam(@Param("teamId") Long teamId);
+    // Automatically generates a query for non-completed tasks by team ID
+    List<Task> findByTeamIdAndCompletedIsFalse(Long teamId);
     
-    @Query("SELECT t FROM Task t WHERE t.assignedTo.id = :userId AND t.completed = false")
-    List<Task> findActiveTasksByUser(@Param("userId") Long userId);
+    // Automatically generates a query for non-completed tasks by user ID
+    List<Task> findByAssignedToIdAndCompletedIsFalse(Long userId);
+
+    // method to count tasks by status
+    long countByStatus(TaskStatus status);
+
+    // method to count completed tasks after a specific date/time
+    long countByStatusAndCompletionDateAfter(TaskStatus status, LocalDateTime completionDate);
 }

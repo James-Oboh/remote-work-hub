@@ -1,30 +1,76 @@
 
-import { authAPI } from './api';
-import { AuthResponse, LoginRequest, RegisterRequest, User } from '../types';
+import { LoginRequest, RegisterRequest, AuthResponse, User, ForgotPasswordRequest, ResetPasswordRequest } from "../types";
+import { authAPI } from "./api";
 
 class AuthService {
   private tokenKey = 'token';
   private userKey = 'user';
 
-  // Login method that calls the API and handles token/user storage
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    const response = await authAPI.login(credentials);
-    const { token, ...userData } = response;
-    this.setToken(token);
-    this.setUser(userData);
-    return response;
+    try {
+      const response = await authAPI.login(credentials);
+      
+      const data = response.data as AuthResponse; 
+      
+      const { token, ...userData } = data;
+      
+      if (token) {
+        this.setToken(token);
+      }
+      this.setUser(userData as User);
+      return data;
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
+  }
+  
+  async register(userData: RegisterRequest): Promise<string> {
+    try {
+      const response = await authAPI.register(userData);
+      return (response.data as { message?: string }).message || 'Registration successful!';
+    } catch (error) {
+      console.error("Registration failed:", error);
+      throw error;
+    }
   }
 
-  // Register method that calls the API and returns the success message
-  async register(userData: RegisterRequest): Promise<string> {
-    const response = await authAPI.register(userData);
-    return response.message || 'Registration successful!';
+  async forgotPassword(data: ForgotPasswordRequest): Promise<string> {
+    try {
+      const response = await authAPI.forgotPassword(data);
+      return (response.data as { message?: string }).message || 'Password reset link sent to email!';
+    } catch (error) {
+      console.error("Forgot password request failed:", error);
+      throw error;
+    }
+  }
+
+  async resetPassword(data: ResetPasswordRequest): Promise<string> {
+    try {
+      const response = await authAPI.resetPassword(data);
+      const responseData = response.data;
+
+      // The 'response.data' is of type 'unknown' and the `@ts-expect-error` directive is unused.
+      // We can remove the redundant `@ts-expect-error` comment and safely narrow the type.
+      // We perform runtime checks to safely access the 'message' property.
+      if (
+        typeof responseData === "object" &&
+        responseData !== null &&
+        "message" in responseData &&
+        typeof responseData.message === "string"
+      ) {
+        return responseData.message || 'Password has been reset successfully!';
+      }
+      return 'Password has been reset successfully!';
+    } catch (error) {
+      console.error("Password reset failed:", error);
+      throw error;
+    }
   }
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
-    window.location.href = '/login';
   }
 
   getToken(): string | null {
@@ -33,29 +79,28 @@ class AuthService {
 
   getUser(): User | null {
     const userStr = localStorage.getItem(this.userKey);
-    return userStr ? JSON.parse(userStr) : null;
+    if (userStr) {
+      try {
+        return JSON.parse(userStr) as User;
+      } catch (error) {
+        console.error("Failed to parse user data from localStorage", error);
+        return null;
+      }
+    }
+    return null;
   }
 
   isAuthenticated(): boolean {
     return !!this.getToken();
   }
 
-  private setToken(token: string) {
+  private setToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
   }
 
-  private setUser(user: any) {
+  private setUser(user: User): void {
     localStorage.setItem(this.userKey, JSON.stringify(user));
-  }
-
-  updateUser(userData: Partial<User>) {
-    const current = this.getUser();
-    if (current) {
-      const updated = { ...current, ...userData };
-      this.setUser(updated);
-    }
   }
 }
 
-const authService = new AuthService();
-export default authService;
+export const authService = new AuthService();

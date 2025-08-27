@@ -1,20 +1,18 @@
 import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import authService from '../services/auth';
+import { Link } from 'react-router-dom';
+import {authService} from '../services/auth';
 import { AuthContext } from '../context/AuthContext';
-import './Register.css'; // Assuming the same styling for both
 
-const Login: React.FC = () => {
-    // We need to use the login function from our AuthContext
+import './Register.css'; 
+
+const Login = () => {
     const { login } = useContext(AuthContext);
-
     const [formData, setFormData] = useState({
         username: '',
         password: ''
     });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const navigate = useNavigate();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,19 +24,11 @@ const Login: React.FC = () => {
         setError('');
 
         try {
-            // Call the authService API to log in
             const response = await authService.login(formData);
             const { username, token } = response;
-
-            // If login is successful, use the login function from AuthContext
-            // to update the application's state and navigate.
             login(username, token);
-            
-            // The navigate call inside AuthContext.login() will handle the redirect.
-            // You can remove the 'navigate('/')' call here.
-
         } catch (err: any) {
-            setError(err.message || 'Login failed.');
+            setError(err.message || 'Login failed. Please check your username and password.');
         } finally {
             setIsLoading(false);
         }
@@ -54,6 +44,7 @@ const Login: React.FC = () => {
                 {error && <div className="error-message">{error}</div>}
                 <form onSubmit={handleSubmit} className="register-form">
                     <div className="form-group">
+                        <label className="form-label" htmlFor="username">Username</label>
                         <input
                             type="text"
                             name="username"
@@ -64,6 +55,7 @@ const Login: React.FC = () => {
                         />
                     </div>
                     <div className="form-group">
+                        <label className="form-label" htmlFor="password">Password</label>
                         <input
                             type="password"
                             name="password"
@@ -84,10 +76,14 @@ const Login: React.FC = () => {
                             Register
                         </Link>
                     </p>
+                    <p>
+                        <Link className="link" to="/forgot-password">
+                            Forgot Password?
+                        </Link>
+                    </p>
                 </div>
             </div>
         </div>
     );
 };
-
 export default Login;

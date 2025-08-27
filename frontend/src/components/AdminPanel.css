@@ -1,0 +1,132 @@
+/* src/components/AdminPanel.css */
+
+/*
+ * General Styles for a clean, modern look.
+ * Using a consistent color palette and typography.
+ */
+ .admin-panel-container {
+    font-family: 'Inter', sans-serif;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #f4f7f9;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  }
+  
+  /*
+   * Typography and headings.
+   */
+  .panel-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #34495e;
+    border-bottom: 2px solid #e0e6eb;
+    padding-bottom: 8px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }
+  
+  /*
+   * User List and Items (Card-based Layout).
+   */
+  .user-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  .user-item {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .user-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-info p {
+    margin: 0 0 8px 0;
+    color: #5c748c;
+    line-height: 1.4;
+  }
+  
+  .user-info p strong {
+    color: #2c3e50;
+  }
+  
+  /*
+   * Delete Button Styling.
+   */
+  .delete-button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: #e74c3c;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .delete-button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+  }
+  
+  .delete-button:active {
+    transform: translateY(0);
+  }
+  
+  /*
+   * Message Styles.
+   */
+  .loading-message,
+  .error-message {
+    text-align: center;
+    font-size: 1.2rem;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .loading-message {
+    color: #3498db;
+    background-color: #ecf0f1;
+  }
+  
+  .error-message {
+    color: #e74c3c;
+    background-color: #fde8e7;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 600px) {
+    .admin-panel-container {
+      padding: 20px;
+    }
+  
+    .panel-title {
+      font-size: 2rem;
+    }
+  }
+  

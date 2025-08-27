@@ -73,9 +73,10 @@ export const getPriorityLabel = (priority: TaskPriority): string => {
 
 // Role helpers
 export const getRoleLabel = (role: UserRole): string => {
-  const labels = {
+  const labels: { [key: string]: string } = {
     [UserRole.ADMIN]: 'Administrator',
     [UserRole.MANAGER]: 'Manager',
+    [UserRole.TEAM_LEAD]: 'Team Lead',
     [UserRole.MEMBER]: 'Member'
   };
   return labels[role] || role;

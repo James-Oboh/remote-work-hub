@@ -8,16 +8,16 @@ public class AuthResponse {
     private String role;
     private String message;
 
-    // ✅ Only one no-args constructor
+    
     public AuthResponse() {}
 
-    // ✅ Constructor for token + username only
+    // Constructor for token + username only
     public AuthResponse(String token, String username) {
         this.token = token;
         this.username = username;
     }
 
-    // ✅ Full constructor with all fields
+    //  constructor with all fields
     public AuthResponse(String token, String username, String email, String role, String message) {
         this.token = token;
         this.username = username;
@@ -40,7 +40,7 @@ public class AuthResponse {
     public void setRole(String role) { this.role = role; }
     public void setMessage(String message) { this.message = message; }
 
-    // Optional: toString
+    // toString
     @Override
     public String toString() {
         return "AuthResponse{" +

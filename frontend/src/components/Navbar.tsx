@@ -1,59 +1,56 @@
-import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import "./Navbar.css";
+import './Navbar.css';
 
-const Navbar = () => {
-  const { user, logout } = useContext(AuthContext);
-  const [isOpen, setIsOpen] = useState(false);
+const Navbar: React.FC = () => {
+    const { user, logout, role } = useContext(AuthContext);
+    const [isOpen, setIsOpen] = useState(false);
+    const navigate = useNavigate();
 
-  return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        {/* Brand */}
-        <Link to="/" className="navbar-brand">
-          <span className="brand-icon">🚀</span>
-          <span className="brand-text">RemoteHub</span>
-        </Link>
+    const handleLogout = () => {
+        logout();
+        setIsOpen(false);
+        navigate('/login');
+    };
 
-        {/* Hamburger toggle */}
-        <button
-          className={`menu-toggle ${isOpen ? "active" : ""}`}
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="Toggle menu"
-        >
-          <span className="bar"></span>
-          <span className="bar"></span>
-          <span className="bar"></span>
-        </button>
+    return (
+        <nav className="navbar">
+            <div className="navbar-container">
+                <Link to="/" className="navbar-brand">
+                    <span className="brand-icon">🚀</span>
+                    <span className="brand-text">RemoteHub</span>
+                </Link>
 
-        {/* Menu Links */}
-        <div className={`navbar-menu ${isOpen ? "open" : ""}`}>
-          <Link to="/" className="nav-link" onClick={() => setIsOpen(false)}>Home</Link>
-          {user && (
-            <>
-              <Link to="/teams" className="nav-link" onClick={() => setIsOpen(false)}>Teams</Link>
-              <Link to="/tasks" className="nav-link" onClick={() => setIsOpen(false)}>Tasks</Link>
-            </>
-          )}
-        </div>
+                {/* ✨ FIX: Restored the navigation links that were accidentally removed */}
+                <div className={`navbar-menu ${isOpen ? 'is-active' : ''}`}>
+                    <Link to="/" onClick={() => setIsOpen(false)} className="nav-link">Home</Link>
+                    {user && (
+                        <>
+                            <Link to="/teams" onClick={() => setIsOpen(false)} className="nav-link">Teams</Link>
+                            <Link to="/tasks" onClick={() => setIsOpen(false)} className="nav-link">Tasks</Link>
+                        </>
+                    )}
+                </div>
 
-        {/* User Menu */}
-        <div className={`user-menu ${isOpen ? "open" : ""}`}>
-          {user ? (
-            <>
-              <span className="username">{user}</span>
-              <button onClick={logout} className="btn-logout">
-                Logout
-              </button>
-            </>
-          ) : (
-            <Link to="/login" className="nav-link" onClick={() => setIsOpen(false)}>Login</Link>
-          )}
-        </div>
-      </div>
-    </nav>
-  );
+                <div className="user-menu">
+                    {user ? (
+                        <>
+                            <div className="user-info hidden md:flex">
+                                <span className="username">{user.username}</span>
+                                {role && <span className="user-role">({role})</span>}
+                            </div>
+                            <button onClick={handleLogout} className="btn-logout">
+                                Logout
+                            </button>
+                        </>
+                    ) : (
+                        <Link to="/login" className="nav-link">Login</Link>
+                    )}
+                </div>
+            </div>
+        </nav>
+    );
 };
 
 export default Navbar;

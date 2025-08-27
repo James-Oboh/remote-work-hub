@@ -3,112 +3,149 @@ import './Dashboard.css';
 import { AuthContext } from '../context/AuthContext';
 
 interface Activity {
-  action: string;
-  description: string;
-  time: string;
-  user: string;
+    action: string;
+    description: string;
+    time: string;
+    user: string;
 }
 
-const Dashboard: React.FC = () => {
-  const { token } = useContext(AuthContext);
-  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>("");
+interface DashboardProps {
+    onCreateTaskClick: () => void;
+}
 
-  const stats = [
-    { title: 'Active Teams', value: '8', icon: '💼', color: '#4A90E2' },
-    { title: 'Pending Tasks', value: '23', icon: '📝', color: '#F39C12' },
-    { title: 'Completed Today', value: '15', icon: '✅', color: '#7ED321' },
-    { title: 'Team Members', value: '42', icon: '👨‍👩‍👧‍👦', color: '#9B59B6' }
-  ];
+const Dashboard: React.FC<DashboardProps> = ({ onCreateTaskClick }) => {
+    const { token, role } = useContext(AuthContext);
+    const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
+    const [stats, setStats] = useState([
+        { title: 'Active Teams', value: '...', icon: '💼', color: '#4A90E2' },
+        { title: 'Pending Tasks', value: '...', icon: '📝', color: '#F39C12' },
+        { title: 'Completed Today', value: '...', icon: '✅', color: '#7ED321' },
+        { title: 'Team Members', value: '...', icon: '👨‍👩‍👧‍👦', color: '#9B59B6' }
+    ]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string>("");
+    const backendBaseUrl = "http://localhost:8085/api/v1";
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await fetch("http://localhost:8085/api/v1/tasks", {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        });
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            if (!token) {
+                setLoading(false);
+                return;
+            }
 
-        if (!response.ok) throw new Error("Failed to fetch tasks");
+            try {
+                // Fetch stats concurrently
+                const statEndpoints = [
+                    'teams/count',
+                    'tasks/pending/count',
+                    'tasks/completed-today/count',
+                    'users/count'
+                ];
 
-        const data = await response.json();
+                const [teamCount, pendingCount, completedTodayCount, usersCount] = await Promise.all(
+                    statEndpoints.map(endpoint => 
+                        fetch(`${backendBaseUrl}/${endpoint}`, { headers: { "Authorization": `Bearer ${token}` } })
+                            .then(res => {
+                                if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
+                                return res.json();
+                            })
+                    )
+                );
 
-        const activities: Activity[] = data.map((task: any) => ({
-          action: "Task",
-          description: task.title || task.name || "Untitled task",
-          time: task.createdAt || "just now",
-          user: task.assignedTo || "Unassigned"
-        }));
+                setStats([
+                    { ...stats[0], value: teamCount.toString() },
+                    { ...stats[1], value: pendingCount.toString() },
+                    { ...stats[2], value: completedTodayCount.toString() },
+                    { ...stats[3], value: usersCount.toString() },
+                ]);
 
-        setRecentActivities(activities);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+                // Fetch recent activities
+                const activitiesResponse = await fetch(`${backendBaseUrl}/tasks?limit=5`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (!activitiesResponse.ok) throw new Error("Failed to fetch activities");
+                const tasksData = await activitiesResponse.json();
 
-    if (token) fetchTasks();
-  }, [token]);
+                const activities: Activity[] = tasksData.map((task: any) => ({
+                    action: "Task Updated",
+                    description: task.title || "Untitled task",
+                    time: new Date(task.updatedAt || task.createdAt).toLocaleString(),
+                    user: task.assignedTo || "Unassigned"
+                }));
+                setRecentActivities(activities);
 
-  return (
-    <div className="dashboard">
-      <div className="container">
-        <h1 className="title text-center fade-in">Welcome to Your Remote Work Hub</h1>
-        <p className="subtitle text-center" style={{ marginBottom: '40px' }}>
-          Stay connected, organized, and productive with your remote team
-        </p>
+            } catch (err: any) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        <div className="stats-grid">
-          {stats.map((stat, idx) => (
-            <div key={idx} className="stat-card fade-in" style={{ animationDelay: `${idx * 0.1}s` }}>
-              <div className="stat-icon" style={{ backgroundColor: stat.color }}>
-                <span>{stat.icon}</span>
-              </div>
-              <div className="stat-content">
-                <h3 className="stat-value">{stat.value}</h3>
-                <p className="stat-title">{stat.title}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        fetchDashboardData();
+    }, [token]);
 
-        <div className="activities-section">
-          <h2 className="subtitle">Recent Activities</h2>
-          {loading && <p>Loading...</p>}
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          <div className="activities-list">
-            {recentActivities.map((activity, idx) => (
-              <div key={idx} className="activity-item fade-in" style={{ animationDelay: `${idx * 0.1}s` }}>
-                <div className="activity-icon">📊</div>
-                <div className="activity-content">
-                  <div className="activity-header">
-                    <span className="activity-action">{activity.action}</span>
-                    <span className="activity-time">{activity.time}</span>
-                  </div>
-                  <p className="activity-description">{activity.description}</p>
-                  <span className="activity-user">by {activity.user}</span>
+    return (
+        <div className="dashboard">
+            <div className="container">
+                <h1 className="title text-center fade-in">Welcome to Your Remote Work Hub</h1>
+                <p className="subtitle text-center" style={{ marginBottom: '40px' }}>
+                    Stay connected, organized, and productive with your remote team
+                </p>
+
+                <div className="stats-grid">
+                    {stats.map((stat, idx) => (
+                        <div key={idx} className="stat-card fade-in" style={{ animationDelay: `${idx * 0.1}s` }}>
+                            <div className="stat-icon" style={{ backgroundColor: stat.color }}>
+                                <span>{stat.icon}</span>
+                            </div>
+                            <div className="stat-content">
+                                <h3 className="stat-value">{loading ? '...' : stat.value}</h3>
+                                <p className="stat-title">{stat.title}</p>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        <div className="quick-actions">
-          <h2 className="subtitle">Quick Actions</h2>
-          <div className="actions-grid">
-            <button className="action-btn"><span className="action-icon">➕</span>Create Task</button>
-            <button className="action-btn"><span className="action-icon">👥</span>Add Team Member</button>
-            <button className="action-btn"><span className="action-icon">📅</span>Schedule Meeting</button>
-            <button className="action-btn"><span className="action-icon">📊</span>View Reports</button>
-          </div>
+                <div className="activities-section">
+                    <h2 className="subtitle">Recent Activities</h2>
+                    {loading && <p>Loading...</p>}
+                    {error && <p style={{ color: "red" }}>{error}</p>}
+                    {!loading && recentActivities.length > 0 && (
+                        <div className="activities-list">
+                            {recentActivities.map((activity, idx) => (
+                                <div key={idx} className="activity-item fade-in" style={{ animationDelay: `${idx * 0.1}s` }}>
+                                    <div className="activity-icon">📊</div>
+                                    <div className="activity-content">
+                                        <div className="activity-header">
+                                            <span className="activity-action">{activity.action}</span>
+                                            <span className="activity-time">{activity.time}</span>
+                                        </div>
+                                        <p className="activity-description">{activity.description}</p>
+                                        <span className="activity-user">by {activity.user}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    {!loading && recentActivities.length === 0 && <p className="text-gray-500">No recent activities found.</p>}
+                </div>
+
+                <div className="quick-actions">
+                    <h2 className="subtitle">Quick Actions</h2>
+                    <div className="actions-grid">
+                        <button className="action-btn" onClick={onCreateTaskClick}>
+                            <span className="action-icon">➕</span>Create Task
+                        </button>
+                        {(role === 'ADMIN' || role === 'TEAM_LEAD') && (
+                            <button className="action-btn"><span className="action-icon">👥</span>Add Team Member</button>
+                        )}
+                        <button className="action-btn"><span className="action-icon">📅</span>Schedule Meeting</button>
+                        <button className="action-btn"><span className="action-icon">📊</span>View Reports</button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Dashboard;

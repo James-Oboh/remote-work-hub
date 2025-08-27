@@ -16,10 +16,10 @@ public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
 
-        // Use getRequestURI() for a more reliable path check.
+       
         String requestUri = request.getRequestURI();
 
-        // Friendly message for auth endpoints (optional)
+        
         if ("/api/v1/auth/login".equals(requestUri) || "/api/v1/auth/register".equals(requestUri)) {
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

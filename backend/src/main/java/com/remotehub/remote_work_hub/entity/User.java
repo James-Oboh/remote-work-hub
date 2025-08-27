@@ -39,6 +39,12 @@ public class User {
     @Column(name = "is_active")
     private boolean isActive = true;
 
+    @Column(name = "password_reset_token")
+    private String passwordResetToken;
+
+    @Column(name = "token_expiration")
+    private java.time.LocalDateTime tokenExpiration;
+
     @ManyToMany(mappedBy = "members")
     private Set<Team> teams = new HashSet<>();
 

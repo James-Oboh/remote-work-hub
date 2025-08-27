@@ -27,8 +27,7 @@ public class JwtUtil {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
     // This is a secure, Base64-encoded 256-bit key.
-    // This resolves the "key byte array is 88 bits" error from before.
-    // In a production environment, this key should be loaded from a secure source.
+   
     private final String jwtSecret = "8D4kS03nFpQ5jX2zL7yR9bT1uA6vH8wG1cE0qM3oP4iT7sJ2kL8mN9hF5rY2uV4zW6xL7zR8yB4tC9vK3pA1qZ";
 
     private final long jwtExpiration = 86400000; // 24 hours
@@ -45,12 +44,12 @@ public class JwtUtil {
 
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
-                // Use the older, compatible method 'setClaims()'
+               
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                // Use the older, compatible method 'signWith(SignatureAlgorithm, Key)'
+                
                 .signWith(SignatureAlgorithm.HS256, getSigningKey())
                 .compact();
     }
@@ -69,7 +68,7 @@ public class JwtUtil {
     }
 
     private Claims getAllClaimsFromToken(String token) {
-        // Use the older `setSigningKey` and `parseClaimsJws` methods
+       
         return Jwts.parser()
                 .setSigningKey(getSigningKey())
                 .parseClaimsJws(token)

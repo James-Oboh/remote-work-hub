@@ -58,4 +58,9 @@ public class TeamService {
     public List<Team> getTeamsByMember(Long userId) {
         return teamRepository.findByMemberId(userId);
     }
+    
+    // method for dashboard statistics
+    public long countAllTeams() {
+        return teamRepository.count();
+    }
 }

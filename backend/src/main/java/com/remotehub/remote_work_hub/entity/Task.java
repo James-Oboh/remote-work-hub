@@ -1,5 +1,8 @@
 package com.remotehub.remote_work_hub.entity;
 
+import com.remotehub.remote_work_hub.entity.User;
+import com.remotehub.remote_work_hub.entity.Team;
+
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -34,6 +37,10 @@ public class Task {
     @Column(name = "is_completed")
     private boolean completed = false;
     
+    
+    @Column(name = "completion_date")
+    private LocalDateTime completionDate;
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
@@ -47,6 +54,10 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "assigned_to_id")
     private User assignedTo;
+
+    @ManyToOne
+    @JoinColumn(name = "certified_by_user_id")
+    private User certifiedBy;
 
     @PrePersist
     protected void onCreate() {

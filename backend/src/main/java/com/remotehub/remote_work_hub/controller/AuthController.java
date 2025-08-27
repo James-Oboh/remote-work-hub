@@ -1,4 +1,4 @@
-// AuthController.java - Proposed Fix
+
 package com.remotehub.remote_work_hub.controller;
 
 import com.remotehub.remote_work_hub.dto.LoginRequest;

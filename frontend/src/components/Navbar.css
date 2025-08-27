@@ -94,4 +94,18 @@
       display: none;
     }
   }
+
+  /* Add to your Navbar.css */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e0e0e0;
+}
+
+.user-role {
+  font-size: 0.8rem;
+  font-style: italic;
+  opacity: 0.8;
+}
   
